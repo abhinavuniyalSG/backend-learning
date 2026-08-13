@@ -1,0 +1,1 @@
+ // "dev": "tsc -w & nodemon dist/app.js"
