@@ -37,7 +37,9 @@ export class MoviesService {
     for (const [key, value] of Object.entries(filters)) {
       if (key === "release_year") {
         cleanedFilters[key] = value;
-        cleanedFilters["year_filter"] = "=";
+        if (!("year_filter" in filters)) {
+          cleanedFilters["year_filter"] = "=";
+        }
       } else if (validFilter.find((item) => item === key)) {
         cleanedFilters[key] = value;
       }
@@ -55,7 +57,7 @@ export class MoviesService {
       };
     }
     return {
-      message: "Found also will ignore all invalid filters",
+      message: "Found",
       count: result.length,
       data: result,
     };

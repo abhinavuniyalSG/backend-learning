@@ -11,8 +11,8 @@ export class moviesController {
     next: NextFunction,
   ) => {
     try {
-      const filters = req.query as any;
-      const result = await MoviesService.getMovies(filters);
+      const filters = req.validated?.query ?? req.query;
+      const result = await MoviesService.getMovies(filters as any);
       res.status(200).json({ ...result });
     } catch (error: any) {
       next(error);
@@ -24,9 +24,13 @@ export class moviesController {
     res: Response,
     next: NextFunction,
   ) => {
-    const input = req.params as any;
-    const result = await MoviesService.getMovieDetails(input);
-    res.status(200).json({ ...result });
+    try {
+      const input = req.validated?.params ?? req.params;
+      const result = await MoviesService.getMovieDetails(input as { id: string });
+      res.status(200).json({ ...result });
+    } catch (error: any) {
+      next(error);
+    }
   };
 
   public createMovieController = async (
@@ -35,7 +39,8 @@ export class moviesController {
     next: NextFunction,
   ) => {
     try {
-      await this.moviesService.createMovieService(req.body);
+      const body = req.validated?.body ?? req.body;
+      await this.moviesService.createMovieService(body as any);
       logger.info("create. movies route");
       res.status(201).json("movie created");
     } catch (error: any) {
@@ -49,7 +54,8 @@ export class moviesController {
     next: NextFunction,
   ) => {
     try {
-      const id = req.params.id as string;
+      const params = req.validated?.params ?? req.params;
+      const id = (params as { id: string }).id;
       await this.moviesService.deleteMovieService({ id });
       res.status(204).send();
     } catch (error: any) {
@@ -63,8 +69,10 @@ export class moviesController {
     next: NextFunction,
   ) => {
     try {
-      const id = req.params.id as string;
-      await this.moviesService.updateMovieService({ id, updates: req.body });
+      const params = req.validated?.params ?? req.params;
+      const id = (params as { id: string }).id;
+      const updates = req.validated?.body ?? req.body;
+      await this.moviesService.updateMovieService({ id, updates });
       res.status(200).json("movie updated");
     } catch (error: any) {
       next(error);
