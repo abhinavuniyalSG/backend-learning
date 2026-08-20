@@ -40,4 +40,5 @@ export class MoviesRepository {
     }
     return this.repository.find({ where: filters });
   };
+  public static findById = (id: string) => this.repository.findBy({ id: id });
 }

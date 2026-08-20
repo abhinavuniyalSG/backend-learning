@@ -18,15 +18,15 @@ export class moviesController {
     }
   };
 
-  // public getMovieDetailsController = async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction,
-  // ) => {
-  //   const input = req.params as any;
-  //   const result = await MoviesService.getMovieDetails(input);
-  //   res.status(200).json({ ...result });
-  // };
+  public getMovieDetailsController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const input = req.params as any;
+    const result = await MoviesService.getMovieDetails(input);
+    res.status(200).json({ ...result });
+  };
 
   public createMovieController = async (
     req: Request,

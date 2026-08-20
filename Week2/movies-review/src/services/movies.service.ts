@@ -54,6 +54,6 @@ export class MoviesService {
       data: result,
     };
   };
-  // public static getMovieDetails = async (input: { id: string }) =>
-  //   await findById(input.id);
+  public static getMovieDetails = async (input: { id: string }) =>
+    await this.moviesRepostry.findById(input.id);
 }

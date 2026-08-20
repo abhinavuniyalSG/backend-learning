@@ -14,6 +14,10 @@ class moviesRoute {
       this.validator("body", moviesSchema),
       this.moviesController.createMovieController,
     );
+    this.router.get(
+      "/movie/:id",
+      this.moviesController.getMovieDetailsController,
+    );
   }
   constructor() {
     this.initializeRoutes();
