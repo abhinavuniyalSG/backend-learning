@@ -1,0 +1,294 @@
+paths:
+  /movie:
+    get:
+      tags: [Movies]
+      summary: List or filter movies
+      description: Returns every movie when no filters are supplied. Title and director use partial matching.
+      parameters:
+        - name: id
+          in: query
+          description: Filter by movie UUID.
+          schema:
+            type: string
+            format: uuid
+        - name: title
+          in: query
+          description: Filter by a partial title match.
+          schema:
+            type: string
+            minLength: 1
+        - name: director
+          in: query
+          description: Filter by a partial director-name match.
+          schema:
+            type: string
+            minLength: 1
+        - name: genre
+          in: query
+          description: Filter by genre.
+          schema:
+            $ref: '#/components/schemas/MovieGenre'
+        - name: release_year
+          in: query
+          description: Filter by release year. Uses exact matching unless year_filter is supplied.
+          schema:
+            type: integer
+            minimum: 1888
+        - name: year_filter
+          in: query
+          description: Comparison operator for release_year.
+          schema:
+            type: string
+            enum: ['=', '>', '<', '>=', '<=']
+      responses:
+        '200':
+          description: Movies matching the supplied filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieListResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Movies]
+      summary: Create a movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMovieRequest'
+      responses:
+        '201':
+          description: Movie created.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: movie created
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/DuplicateMovie'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /movie/{id}:
+    parameters:
+      - $ref: '#/components/parameters/MovieId'
+    get:
+      tags: [Movies]
+      summary: Get a movie by ID
+      responses:
+        '200':
+          description: Movie lookup result. A missing movie returns message Not Found with HTTP 200.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetailsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Movies]
+      summary: Update one or more movie fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMovieRequest'
+      responses:
+        '200':
+          description: Movie updated.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: movie updated
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/MovieNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Movies]
+      summary: Delete a movie
+      responses:
+        '204':
+          description: Movie deleted; no response body.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/MovieNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  parameters:
+    MovieId:
+      name: id
+      in: path
+      required: true
+      description: Movie UUID.
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    MovieGenre:
+      type: string
+      enum: [Sci-Fi, Action, Crime, Drama, Thriller, Animation]
+      example: Sci-Fi
+
+    Movie:
+      type: object
+      required: [id, title, director, genre, release_year]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 100
+          example: Inception
+        director:
+          type: string
+          maxLength: 100
+          example: Christopher Nolan
+        genre:
+          $ref: '#/components/schemas/MovieGenre'
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 2010
+
+    CreateMovieRequest:
+      type: object
+      additionalProperties: false
+      required: [title, director, genre, release_year]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Inception
+        director:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Christopher Nolan
+        genre:
+          $ref: '#/components/schemas/MovieGenre'
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 2010
+
+    UpdateMovieRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Inception
+        director:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Christopher Nolan
+        genre:
+          $ref: '#/components/schemas/MovieGenre'
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 2010
+
+    MovieListResponse:
+      type: object
+      required: [message, data]
+      properties:
+        message:
+          type: string
+          enum: [Found, No Movies]
+        count:
+          type: integer
+          minimum: 0
+          example: 1
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+
+    MovieDetailsResponse:
+      oneOf:
+        - type: object
+          required: [message, data]
+          properties:
+            message:
+              type: string
+              enum: [Found]
+            data:
+              $ref: '#/components/schemas/Movie'
+        - type: object
+          required: [message]
+          properties:
+            message:
+              type: string
+              enum: [Not Found]
+
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      required: [message, errors]
+      properties:
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: array
+          items:
+            type: string
+
+  responses:
+    ValidationError:
+      description: The request did not satisfy input validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+    DuplicateMovie:
+      description: A movie with the same title already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Movie already exist
+    MovieNotFound:
+      description: No movie exists for the provided ID.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Movie not found
+    InternalError:
+      description: An unexpected server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

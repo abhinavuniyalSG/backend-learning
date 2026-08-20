@@ -3,6 +3,7 @@ import express from "express";
 import kernel from "./core/kernel.js";
 import routes from "./routes/index.js";
 import { logger } from "./core/logger.js";
+import { registerSwagger } from "./docs/swagger.js";
 
 class App {
   private kernel: kernel = new kernel();
@@ -12,6 +13,7 @@ class App {
     await this.kernel.dataBaseConnect();
     this.kernel.toJsonParser(this.app);
     this.kernel.preFlight(this.app);
+    registerSwagger(this.app);
     this.routes.routes(this.app);
     this.kernel.errorMiddlware(this.app);
   }
