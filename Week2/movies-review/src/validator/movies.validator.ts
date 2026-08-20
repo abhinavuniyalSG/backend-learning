@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const moviesSchema = z.object({
+export const movieCreationSchema = z.object({
   title: z
     .string({
       error: (issue) =>
@@ -36,4 +36,11 @@ export const moviesSchema = z.object({
       new Date().getFullYear(),
       `Release year cannot be later than ${new Date().getFullYear()}`,
     ),
+});
+
+export const idSchema = z.object({
+  id: z.uuidv4({
+    error: (issue) =>
+      issue.input === undefined ? "Id is required" : "Not a Valid id",
+  }),
 });

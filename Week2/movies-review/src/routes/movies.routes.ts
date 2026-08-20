@@ -1,8 +1,7 @@
 import express from "express";
 import { moviesController } from "../controllers/movies.contoller.js";
-import { logger } from "../core/logger.js";
 import { requestValidator } from "../middleware/requestValidator.middleware.js";
-import { moviesSchema } from "../validator/movies.validator.js";
+import { movieCreationSchema } from "../validator/movies.validator.js";
 class moviesRoute {
   public router = express.Router();
   private moviesController = new moviesController();
@@ -11,7 +10,7 @@ class moviesRoute {
     this.router.get("/movie", this.moviesController.getMoviesController);
     this.router.post(
       "/movie",
-      this.validator("body", moviesSchema),
+      this.validator("body", movieCreationSchema),
       this.moviesController.createMovieController,
     );
     this.router.get(

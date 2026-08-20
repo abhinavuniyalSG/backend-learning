@@ -15,7 +15,6 @@ interface GetMoviesFilters extends CreateMovieInput {
 
 export class MoviesService {
   private static moviesRepostry = MoviesRepository;
-
   public static createMovieService = async (data: CreateMovieInput) => {
     const found = await this.moviesRepostry.findByTitle(data.title);
     if (found) {
@@ -54,6 +53,17 @@ export class MoviesService {
       data: result,
     };
   };
-  public static getMovieDetails = async (input: { id: string }) =>
-    await this.moviesRepostry.findById(input.id);
+  public static getMovieDetails = async (input: { id: string }) => {
+    let result;
+    const found = await this.moviesRepostry.findById(input.id);
+    if (!found) {
+      return {
+        message: "Not Found",
+      };
+    }
+    return {
+      message: "Found",
+      data: result,
+    };
+  };
 }
