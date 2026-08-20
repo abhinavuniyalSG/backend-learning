@@ -63,16 +63,13 @@ export class MoviesService {
     };
   };
   public static getMovieDetails = async (input: { id: string }) => {
-    let result;
-    const found = await this.moviesRepostry.findById(input.id);
-    if (!found) {
-      return {
-        message: "Not Found",
-      };
+    const movie = await this.moviesRepostry.findById(input.id);
+    if (!movie) {
+      throw new HttpError(404, "Movie not found");
     }
     return {
       message: "Found",
-      data: result,
+      data: movie,
     };
   };
 

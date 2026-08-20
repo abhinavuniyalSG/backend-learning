@@ -1,5 +1,5 @@
 paths:
-  /movie:
+  /movies:
     get:
       tags: [Movies]
       summary: List or filter movies
@@ -75,7 +75,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /movie/{id}:
+  /movies/{id}:
     parameters:
       - $ref: '#/components/parameters/MovieId'
     get:
@@ -83,13 +83,15 @@ paths:
       summary: Get a movie by ID
       responses:
         '200':
-          description: Movie lookup result. A missing movie returns message Not Found with HTTP 200.
+          description: Movie lookup result.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MovieDetailsResponse'
         '400':
           $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/MovieNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
     patch:
@@ -237,12 +239,6 @@ components:
               enum: [Found]
             data:
               $ref: '#/components/schemas/Movie'
-        - type: object
-          required: [message]
-          properties:
-            message:
-              type: string
-              enum: [Not Found]
 
     ErrorResponse:
       type: object

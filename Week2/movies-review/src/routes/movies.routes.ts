@@ -13,27 +13,27 @@ class moviesRoute {
   private validator = requestValidator.validate;
   private initializeRoutes() {
     this.router.get(
-      "/movie",
+      "/movies",
       this.validator("query", movieQuerySchema),
       this.moviesController.getMoviesController,
     );
     this.router.post(
-      "/movie",
+      "/movies",
       this.validator("body", movieCreationSchema),
       this.moviesController.createMovieController,
     );
     this.router.get(
-      "/movie/:id",
+      "/movies/:id",
       this.validator("params", idSchema),
       this.moviesController.getMovieDetailsController,
     );
     this.router.delete(
-      "/movie/:id",
+      "/movies/:id",
       this.validator("params", idSchema),
       this.moviesController.deleteMovieController,
     );
     this.router.patch(
-      "/movie/:id",
+      "/movies/:id",
       this.validator("params", idSchema),
       this.validator("body", movieUpdateSchema),
       this.moviesController.updateMovieController,
