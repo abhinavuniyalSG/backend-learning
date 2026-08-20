@@ -43,4 +43,9 @@ export class MoviesRepository {
   public static findById = (id: string) => this.repository.findBy({ id: id });
 
   public static deleteById = (id: string) => this.repository.delete({ id });
+
+  public static updateById = (
+    id: string,
+    updates: Partial<Omit<Movies, "id">>,
+  ) => this.repository.update({ id }, updates);
 }

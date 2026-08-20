@@ -13,6 +13,13 @@ interface GetMoviesFilters extends CreateMovieInput {
   id: string;
 }
 
+interface UpdateMovieInput {
+  title?: string;
+  director?: string;
+  genre?: MovieGenre;
+  release_year?: number;
+}
+
 export class MoviesService {
   private static moviesRepostry = MoviesRepository;
   public static createMovieService = async (data: CreateMovieInput) => {
@@ -69,6 +76,31 @@ export class MoviesService {
 
   public static deleteMovieService = async (input: { id: string }) => {
     const result = await this.moviesRepostry.deleteById(input.id);
+
+    if (!result.affected) {
+      throw new HttpError(404, "Movie not found");
+    }
+  };
+
+  public static updateMovieService = async (input: {
+    id: string;
+    updates: any;
+  }) => {
+    const validFields = ["title", "director", "genre", "release_year"];
+    const cleanedUpdates = Object.fromEntries(
+      Object.entries(input.updates).filter(([key]) =>
+        validFields.includes(key),
+      ),
+    ) as UpdateMovieInput;
+
+    if (Object.keys(cleanedUpdates).length === 0) {
+      throw new HttpError(400, "No valid fields provided for update");
+    }
+
+    const result = await this.moviesRepostry.updateById(
+      input.id,
+      cleanedUpdates,
+    );
 
     if (!result.affected) {
       throw new HttpError(404, "Movie not found");

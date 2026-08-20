@@ -56,4 +56,18 @@ export class moviesController {
       next(error);
     }
   };
+
+  public updateMovieController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const id = req.params.id as string;
+      await this.moviesService.updateMovieService({ id, updates: req.body });
+      res.status(200).json("movie updated");
+    } catch (error: any) {
+      next(error);
+    }
+  };
 }
