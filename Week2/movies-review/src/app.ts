@@ -13,6 +13,7 @@ class App {
     this.kernel.toJsonParser(this.app);
     this.kernel.preFlight(this.app);
     this.routes.routes(this.app);
+    this.kernel.errorMiddlware(this.app);
   }
 
   constructor() {
