@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-enum MovieGenre {
+export enum MovieGenre {
   "Sci-Fi" = "Sci-Fi",
   "Action" = "Action",
   "Crime" = "Crime",
@@ -14,10 +14,10 @@ export class Movies {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   title!: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   director!: string;
 
   @Column({
@@ -26,6 +26,6 @@ export class Movies {
   })
   genre!: MovieGenre;
 
-  @Column()
-  year!: number;
+  @Column({ type: "integer" })
+  release_year!: number;
 }

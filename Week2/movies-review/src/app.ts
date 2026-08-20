@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express from "express";
 import kernel from "./core/kernel.js";
 import routes from "./routes/index.js";
