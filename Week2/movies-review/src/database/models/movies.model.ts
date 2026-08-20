@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Reviews } from "./reviews.model.js";
 
 export enum MovieGenre {
   "Sci-Fi" = "Sci-Fi",
@@ -28,4 +29,7 @@ export class Movies {
 
   @Column({ type: "integer" })
   release_year!: number;
+
+  @OneToMany(() => Reviews, (review) => review.movie)
+  reviews!: Reviews[];
 }

@@ -20,4 +20,8 @@ export class Reviews {
 
   @Column({ type: "text" })
   comment!: string;
+
+  @ManyToOne(() => Movies, (movie) => movie.reviews, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "movie_id" })
+  movie!: Movies;
 }
