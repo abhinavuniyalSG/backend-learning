@@ -66,4 +66,12 @@ export class MoviesService {
       data: result,
     };
   };
+
+  public static deleteMovieService = async (input: { id: string }) => {
+    const result = await this.moviesRepostry.deleteById(input.id);
+
+    if (!result.affected) {
+      throw new HttpError(404, "Movie not found");
+    }
+  };
 }

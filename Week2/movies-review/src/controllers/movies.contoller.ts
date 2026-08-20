@@ -1,6 +1,7 @@
 import { logger } from "../core/logger.js";
 import type { NextFunction, Request, Response } from "express";
 import { MoviesService } from "../services/movies.service.js";
+import { HttpError } from "../utils/httpError.utils.js";
 
 export class moviesController {
   private moviesService = MoviesService;
@@ -37,6 +38,20 @@ export class moviesController {
       await this.moviesService.createMovieService(req.body);
       logger.info("create. movies route");
       res.status(201).json("movie created");
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  public deleteMovieController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const id = req.params.id as string;
+      await this.moviesService.deleteMovieService({ id });
+      res.status(204).send();
     } catch (error: any) {
       next(error);
     }
