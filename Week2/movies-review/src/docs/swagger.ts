@@ -12,7 +12,10 @@ const swaggerSpec = swaggerJSDoc({
       description: "API for movie review.",
     },
     servers: [{ url: "/api", description: "Current server" }],
-    tags: [{ name: "Movies", description: "Movie catalogue operations" }],
+    tags: [
+      { name: "Movies", description: "Movie catalogue operations" },
+      { name: "Reviews", description: "Movie review operations" },
+    ],
   },
   apis: [resolve(process.cwd(), "swaggerDocs/**/*.yaml")],
 });

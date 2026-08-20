@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MoviesReviewRelationship1787251384902 implements MigrationInterface {
-  name = "MoviesReviewRelationship1787251384902";
+export class MoviesReviewRelationship1787253796998 implements MigrationInterface {
+  name = "MoviesReviewRelationship1787253796998";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "reviews" ADD "movie_id" uuid`);

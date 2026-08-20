@@ -130,6 +130,45 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /movies/{movieId}/reviews:
+    parameters:
+      - name: movieId
+        in: path
+        required: true
+        description: UUID of the movie receiving the review.
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Reviews]
+      summary: Create a review for a movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Review created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, data]
+                properties:
+                  message:
+                    type: string
+                    example: Review created
+                  data:
+                    $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/MovieNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   parameters:
     MovieId:
@@ -212,6 +251,51 @@ components:
           type: integer
           minimum: 1888
           example: 2010
+
+    Review:
+      type: object
+      required: [id, movie_id, reviewer_name, rating, comment]
+      properties:
+        id:
+          type: string
+          format: uuid
+        movie_id:
+          type: string
+          format: uuid
+        reviewer_name:
+          type: string
+          maxLength: 100
+          example: Ada Lovelace
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 1000
+          example: A thoughtful and exciting film.
+
+    CreateReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [reviewer_name, rating, comment]
+      properties:
+        reviewer_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Ada Lovelace
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          example: A thoughtful and exciting film.
 
     MovieListResponse:
       type: object
