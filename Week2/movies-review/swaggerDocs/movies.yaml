@@ -27,7 +27,7 @@ paths:
           in: query
           description: Filter by genre.
           schema:
-            $ref: '#/components/schemas/MovieGenre'
+            $ref: "#/components/schemas/MovieGenre"
         - name: release_year
           in: query
           description: Filter by release year. Uses exact matching unless year_filter is supplied.
@@ -39,18 +39,18 @@ paths:
           description: Comparison operator for release_year.
           schema:
             type: string
-            enum: ['=', '>', '<', '>=', '<=']
+            enum: ["=", ">", "<", ">=", "<="]
       responses:
-        '200':
+        "200":
           description: Movies matching the supplied filters.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieListResponse'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                $ref: "#/components/schemas/MovieListResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalError"
     post:
       tags: [Movies]
       summary: Create a movie
@@ -59,41 +59,41 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateMovieRequest'
+              $ref: "#/components/schemas/CreateMovieRequest"
       responses:
-        '201':
+        "201":
           description: Movie created.
           content:
             application/json:
               schema:
                 type: string
                 example: movie created
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '409':
-          $ref: '#/components/responses/DuplicateMovie'
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          $ref: "#/components/responses/DuplicateMovie"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
   /movies/{id}:
     parameters:
-      - $ref: '#/components/parameters/MovieId'
+      - $ref: "#/components/parameters/MovieId"
     get:
       tags: [Movies]
       summary: Get a movie by ID
       responses:
-        '200':
+        "200":
           description: Movie lookup result.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieDetailsResponse'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '404':
-          $ref: '#/components/responses/MovieNotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                $ref: "#/components/schemas/MovieDetailsResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/MovieNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
     patch:
       tags: [Movies]
       summary: Update one or more movie fields
@@ -102,33 +102,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMovieRequest'
+              $ref: "#/components/schemas/UpdateMovieRequest"
       responses:
-        '200':
+        "200":
           description: Movie updated.
           content:
             application/json:
               schema:
                 type: string
                 example: movie updated
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '404':
-          $ref: '#/components/responses/MovieNotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/MovieNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
     delete:
       tags: [Movies]
       summary: Delete a movie
       responses:
-        '204':
+        "204":
           description: Movie deleted; no response body.
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '404':
-          $ref: '#/components/responses/MovieNotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/MovieNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
   /movies/{movieId}/reviews:
     parameters:
@@ -139,6 +139,47 @@ paths:
         schema:
           type: string
           format: uuid
+    get:
+      tags: [Reviews]
+      summary: Get reviews for a movie with optional filters
+      parameters:
+        - name: reviewer_name
+          in: query
+          required: false
+          description: Partial match for reviewer name.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+        - name: rating
+          in: query
+          required: false
+          description: Rating value to filter by.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: rating_filter
+          in: query
+          required: false
+          description: Compare rating using =, >, <, >=, or <=.
+          schema:
+            type: string
+            enum: ["=", ">", "<", ">=", "<="]
+      responses:
+        "200":
+          description: Reviews matching the filters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewListResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/MovieNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
     post:
       tags: [Reviews]
       summary: Create a review for a movie
@@ -147,9 +188,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateReviewRequest'
+              $ref: "#/components/schemas/CreateReviewRequest"
       responses:
-        '201':
+        "201":
           description: Review created.
           content:
             application/json:
@@ -161,13 +202,13 @@ paths:
                     type: string
                     example: Review created
                   data:
-                    $ref: '#/components/schemas/Review'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '404':
-          $ref: '#/components/responses/MovieNotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                    $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/MovieNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
 components:
   parameters:
@@ -202,7 +243,7 @@ components:
           maxLength: 100
           example: Christopher Nolan
         genre:
-          $ref: '#/components/schemas/MovieGenre'
+          $ref: "#/components/schemas/MovieGenre"
         release_year:
           type: integer
           minimum: 1888
@@ -224,7 +265,7 @@ components:
           maxLength: 100
           example: Christopher Nolan
         genre:
-          $ref: '#/components/schemas/MovieGenre'
+          $ref: "#/components/schemas/MovieGenre"
         release_year:
           type: integer
           minimum: 1888
@@ -246,7 +287,7 @@ components:
           maxLength: 100
           example: Christopher Nolan
         genre:
-          $ref: '#/components/schemas/MovieGenre'
+          $ref: "#/components/schemas/MovieGenre"
         release_year:
           type: integer
           minimum: 1888
@@ -296,6 +337,21 @@ components:
           minLength: 1
           maxLength: 1000
           example: A thoughtful and exciting film.
+    ReviewListResponse:
+      type: object
+      required: [message, data]
+      properties:
+        message:
+          type: string
+          enum: [Found, No Reviews]
+        count:
+          type: integer
+          minimum: 0
+          example: 1
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
 
     MovieListResponse:
       type: object
@@ -311,7 +367,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Movie'
+            $ref: "#/components/schemas/Movie"
 
     MovieDetailsResponse:
       oneOf:
@@ -322,7 +378,7 @@ components:
               type: string
               enum: [Found]
             data:
-              $ref: '#/components/schemas/Movie'
+              $ref: "#/components/schemas/Movie"
 
     ErrorResponse:
       type: object
@@ -349,13 +405,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ValidationErrorResponse'
+            $ref: "#/components/schemas/ValidationErrorResponse"
     DuplicateMovie:
       description: A movie with the same title already exists.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             message: Movie already exist
     MovieNotFound:
@@ -363,7 +419,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             message: Movie not found
     InternalError:
@@ -371,4 +427,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"

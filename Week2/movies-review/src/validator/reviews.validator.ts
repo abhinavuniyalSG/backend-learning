@@ -28,3 +28,25 @@ export const movieIdSchema = z
     }),
   })
   .strict();
+
+export const reviewQuerySchema = z
+  .object({
+    reviewer_name: z
+      .string()
+      .trim()
+      .min(1, "Reviewer name cannot be empty")
+      .max(100, "Reviewer name must not exceed 100 characters")
+      .optional(),
+    rating: z.coerce
+      .number({ error: "Rating must be a number" })
+      .int("Rating must be an integer")
+      .min(1, "Rating must be at least 1")
+      .max(5, "Rating must not exceed 5")
+      .optional(),
+    rating_filter: z
+      .enum(["=", ">", "<", ">=", "<="], {
+        error: "Invalid rating filter",
+      })
+      .optional(),
+  })
+  .strict();
