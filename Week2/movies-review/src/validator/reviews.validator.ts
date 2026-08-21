@@ -50,3 +50,16 @@ export const reviewQuerySchema = z
       .optional(),
   })
   .strict();
+
+export const reviewIdmovieIdSchema = z
+  .object({
+    movieId: z.uuidv4({
+      error: (issue) =>
+        issue.input === undefined ? "Movie Id is required" : "Not a Valid id",
+    }),
+    reviewId: z.uuidv4({
+      error: (issue) =>
+        issue.input === undefined ? "Review Id is required" : "Not a Valid id",
+    }),
+  })
+  .strict();

@@ -46,4 +46,21 @@ export class ReviewsController {
       next(error);
     }
   };
+
+  public getReviewDetailContoller = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { movieId, reviewId } = (req.validated?.params ?? req.params) as {
+        movieId: string;
+        reviewId: string;
+      };
+      const result = await ReviewsService.getReviewDetail(movieId, reviewId);
+      res.status(200).json({ result });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

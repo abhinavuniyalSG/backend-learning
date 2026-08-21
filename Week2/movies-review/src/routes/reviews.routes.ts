@@ -4,6 +4,7 @@ import { requestValidator } from "../middleware/requestValidator.middleware.js";
 import {
   movieIdSchema,
   reviewCreationSchema,
+  reviewIdmovieIdSchema,
   reviewQuerySchema,
 } from "../validator/reviews.validator.js";
 
@@ -24,6 +25,11 @@ class ReviewsRoute {
       this.validator("params", movieIdSchema),
       this.validator("body", reviewCreationSchema),
       this.reviewsController.createReviewController,
+    );
+    this.router.get(
+      "/:movieId/reviews/:reviewId",
+      this.validator("params", reviewIdmovieIdSchema),
+      this.reviewsController.getReviewDetailContoller,
     );
   }
 

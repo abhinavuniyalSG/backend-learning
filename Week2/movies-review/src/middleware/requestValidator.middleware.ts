@@ -19,15 +19,12 @@ export class requestValidator {
           input = req.body;
           break;
       }
-
       const result = schema.safeParse(input);
       if (!result.success) {
-        return res
-          .status(400)
-          .json({
-            message: "Validation failed",
-            errors: result.error.issues.map((issues) => issues.message),
-          });
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: result.error.issues.map((issues) => issues.message),
+        });
       }
 
       req.validated = { ...req.validated, [type]: result.data };

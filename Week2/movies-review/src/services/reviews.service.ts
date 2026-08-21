@@ -71,4 +71,19 @@ export class ReviewsService {
       data: result,
     };
   };
+
+  public static getReviewDetail = async (movieId: string, Id: string) => {
+    const movie = await MoviesRepository.findById(movieId);
+    if (!movie) {
+      throw new HttpError(404, "Movie not found");
+    }
+    const reviewDetail = await ReviewsRepository.findReviewById(movieId, Id);
+    if (reviewDetail.length === 0) {
+      throw new HttpError(404, "Review not found");
+    }
+    return {
+      message: "found",
+      data: reviewDetail[0],
+    };
+  };
 }
