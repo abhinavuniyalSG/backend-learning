@@ -31,6 +31,11 @@ class ReviewsRoute {
       this.validator("params", reviewIdmovieIdSchema),
       this.reviewsController.getReviewDetailContoller,
     );
+    this.router.delete(
+      "/:movieId/reviews/:reviewId",
+      this.validator("params", reviewIdmovieIdSchema),
+      this.reviewsController.deleteReviewContoller,
+    );
   }
 
   constructor() {

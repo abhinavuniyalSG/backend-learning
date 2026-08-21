@@ -72,18 +72,35 @@ export class ReviewsService {
     };
   };
 
-  public static getReviewDetail = async (movieId: string, Id: string) => {
+  public static getReviewDetail = async (movieId: string, reviewId: string) => {
     const movie = await MoviesRepository.findById(movieId);
     if (!movie) {
       throw new HttpError(404, "Movie not found");
     }
-    const reviewDetail = await ReviewsRepository.findReviewById(movieId, Id);
+    const reviewDetail = await ReviewsRepository.findReviewById(
+      movieId,
+      reviewId,
+    );
     if (reviewDetail.length === 0) {
       throw new HttpError(404, "Review not found");
     }
     return {
       message: "found",
       data: reviewDetail[0],
+    };
+  };
+
+  public static deleteReview = async (movieId: string, Id: string) => {
+    const movie = await MoviesRepository.findById(movieId);
+    if (!movie) {
+      throw new HttpError(404, "Movie not found");
+    }
+    const reviewDetail = await ReviewsRepository.deleteReviewById(movieId, Id);
+    if (reviewDetail.affected === 0) {
+      throw new HttpError(404, "Review not found");
+    }
+    return {
+      message: "deleted",
     };
   };
 }

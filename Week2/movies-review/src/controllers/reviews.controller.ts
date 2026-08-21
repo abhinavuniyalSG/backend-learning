@@ -63,4 +63,21 @@ export class ReviewsController {
       next(error);
     }
   };
+
+  public deleteReviewContoller = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { movieId, reviewId } = (req.validated?.params ?? req.params) as {
+        movieId: string;
+        reviewId: string;
+      };
+      const result = await ReviewsService.deleteReview(movieId, reviewId);
+      res.status(204).json({ result });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

@@ -60,9 +60,14 @@ export class ReviewsRepository {
     });
   };
 
-  public static findReviewById = async (movieId: string, Id: string) => {
-    return await this.repository.find({
-      where: { id: Id, movie: { id: movieId } },
+  public static findReviewById = async (movieId: string, reviewId: string) =>
+    await this.repository.find({
+      where: { id: reviewId, movie: { id: movieId } },
     });
-  };
+
+  public static deleteReviewById = async (movieId: string, reviewId: string) =>
+    await this.repository.delete({
+      id: reviewId,
+      movie: { id: movieId },
+    });
 }
