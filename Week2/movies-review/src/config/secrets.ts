@@ -12,6 +12,6 @@ export const DB_VARIABLES = {
   DB_PORT: Number(process.env.DB_PORT) || 5432,
   DB_USERNAME: process.env.DB_USERNAME || "abc",
   DB_PASSWORD: process.env.DB_PASSWORD || "",
-  DB_LOGGING: Boolean(process.env.DB_LOGGING) || true,
+  DB_LOGGING: Boolean(process.env.DB_LOGGING) || false,
   DB_DATABASE: process.env.DB_DATABASE || "movies_reviews",
 };

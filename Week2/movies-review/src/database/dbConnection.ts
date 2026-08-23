@@ -10,7 +10,7 @@ export const AppDataSource = new DataSource({
   password: DB_VARIABLES.DB_PASSWORD,
   database: DB_VARIABLES.DB_DATABASE,
   synchronize: false,
-  logging: DB_VARIABLES.DB_LOGGING,
+  // logging: DB_VARIABLES.DB_LOGGING,
   entities: ["src/database/models/**/*.ts"],
   migrations: ["src/database/migration/**/*.ts"],
   // subscribers: [],
@@ -24,7 +24,6 @@ export class DatabaseConnection {
       logger.info("Data Base connected ");
     } catch (e) {
       logger.error("Failed to connect to DB");
-      console.log(e);
       logger.error(e);
       throw new Error("Failed to connect to DB");
     }

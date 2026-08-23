@@ -161,9 +161,8 @@ export class ReviewsService {
     }
     const calcAverage = ({ count, totalRating }: averageInput) => {
       const result = totalRating / count;
-      console.log(result);
 
-      if (result > 0 && typeof result === "number" && !Number.isNaN(result)) {
+      if (result > 0 && typeof result === "number") {
         return { averageRating: result };
       }
       return { averageRating: 0 };

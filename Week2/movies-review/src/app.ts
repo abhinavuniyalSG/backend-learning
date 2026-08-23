@@ -13,6 +13,7 @@ class App {
     await this.kernel.dataBaseConnect();
     this.kernel.toJsonParser(this.app);
     this.kernel.preFlight(this.app);
+    this.kernel.httpLogger(this.app);
     registerSwagger(this.app);
     this.routes.routes(this.app);
     this.kernel.errorMiddlware(this.app);

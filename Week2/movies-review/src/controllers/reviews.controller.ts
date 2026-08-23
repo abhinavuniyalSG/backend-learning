@@ -121,7 +121,7 @@ export class ReviewsController {
         reviewId: string;
       };
       const result = await ReviewsService.deleteReview(movieId, reviewId);
-      res.status(204).json({ result });
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
