@@ -19,6 +19,7 @@ export class requestValidator {
           input = req.body;
           break;
       }
+      console.log(input);
       const result = schema.safeParse(input);
       if (!result.success) {
         return res.status(400).json({

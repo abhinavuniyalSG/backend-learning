@@ -64,6 +64,52 @@ export class ReviewsController {
     }
   };
 
+  public updateReviewController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { movieId, reviewId } = (req.validated?.params ?? req.params) as {
+        movieId: string;
+        reviewId: string;
+      };
+
+      const updatedReview = await ReviewsService.updateReview(
+        movieId,
+        reviewId,
+        req.validated?.body as {
+          reviewer_name?: string;
+          rating?: number;
+          comment?: string;
+        },
+      );
+
+      res.status(200).json({
+        message: "Review updated",
+        data: updatedReview,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public averageRatingController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { movieId } = (req.validated?.params ?? req.params) as {
+        movieId: string;
+      };
+      const result = await ReviewsService.findAverageReview(movieId);
+      res.status(200).json({ result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public deleteReviewContoller = async (
     req: Request,
     res: Response,

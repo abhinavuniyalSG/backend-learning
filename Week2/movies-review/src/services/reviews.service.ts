@@ -10,6 +10,12 @@ interface CreateReviewInput {
 interface filterInput {
   [key: string]: string | number | undefined;
 }
+
+interface UpdateReviewInput {
+  reviewer_name?: string;
+  rating?: number;
+  comment?: string;
+}
 export class ReviewsService {
   public static createReview = async (
     movieId: string,
@@ -90,6 +96,45 @@ export class ReviewsService {
     };
   };
 
+  public static updateReview = async (
+    movieId: string,
+    reviewId: string,
+    reviewData: UpdateReviewInput,
+  ) => {
+    const movie = await MoviesRepository.findById(movieId);
+    if (!movie) {
+      throw new HttpError(404, "Movie not found");
+    }
+
+    const review = await ReviewsRepository.findReviewById(movieId, reviewId);
+    if (review.length === 0) {
+      throw new HttpError(404, "Review not found");
+    }
+
+    const updates = Object.fromEntries(
+      Object.entries(reviewData).filter(([, value]) => value !== undefined),
+    ) as UpdateReviewInput;
+
+    if (Object.keys(updates).length === 0) {
+      throw new HttpError(400, "At least one field is required for update");
+    }
+
+    const result = await ReviewsRepository.updateReviewById(
+      movieId,
+      reviewId,
+      updates,
+    );
+
+    if (result.affected === 0) {
+      throw new HttpError(404, "Review not found");
+    }
+    return {
+      message: "Updated review",
+      id: reviewId,
+      movie_id: movieId,
+    };
+  };
+
   public static deleteReview = async (movieId: string, Id: string) => {
     const movie = await MoviesRepository.findById(movieId);
     if (!movie) {
@@ -102,5 +147,27 @@ export class ReviewsService {
     return {
       message: "deleted",
     };
+  };
+
+  public static findAverageReview = async (movieId: string) => {
+    const movie = await MoviesRepository.findById(movieId);
+    if (!movie) {
+      throw new HttpError(404, "Movie not found");
+    }
+    const data = await ReviewsRepository.findAllReviewsRating(movieId);
+    interface averageInput {
+      count: number;
+      totalRating: number;
+    }
+    const calcAverage = ({ count, totalRating }: averageInput) => {
+      const result = totalRating / count;
+      console.log(result);
+
+      if (result > 0 && typeof result === "number" && !Number.isNaN(result)) {
+        return { averageRating: result };
+      }
+      return { averageRating: 0 };
+    };
+    return calcAverage(data);
   };
 }

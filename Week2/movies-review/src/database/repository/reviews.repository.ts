@@ -64,10 +64,29 @@ export class ReviewsRepository {
     await this.repository.find({
       where: { id: reviewId, movie: { id: movieId } },
     });
-
+  public static updateReviewById = async (
+    movieId: string,
+    reviewId: string,
+    updates: Partial<Reviews>,
+  ) =>
+    await this.repository.update(
+      {
+        id: reviewId,
+        movie: { id: movieId },
+      },
+      updates,
+    );
   public static deleteReviewById = async (movieId: string, reviewId: string) =>
     await this.repository.delete({
       id: reviewId,
       movie: { id: movieId },
     });
+
+  public static findAllReviewsRating = async (movieId: string) =>
+    await this.repository
+      .createQueryBuilder("reviews")
+      .select("COUNT(reviews.id)", "count")
+      .addSelect("SUM(reviews.rating)", "totalRating")
+      .where("reviews.movie = :movieId", { movieId })
+      .getRawOne();
 }

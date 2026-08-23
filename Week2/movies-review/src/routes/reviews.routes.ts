@@ -6,6 +6,7 @@ import {
   reviewCreationSchema,
   reviewIdmovieIdSchema,
   reviewQuerySchema,
+  reviewUpdateSchema,
 } from "../validator/reviews.validator.js";
 
 class ReviewsRoute {
@@ -27,6 +28,11 @@ class ReviewsRoute {
       this.reviewsController.createReviewController,
     );
     this.router.get(
+      "/:movieId/reviews/averageRating",
+      this.validator("params", movieIdSchema),
+      this.reviewsController.averageRatingController,
+    );
+    this.router.get(
       "/:movieId/reviews/:reviewId",
       this.validator("params", reviewIdmovieIdSchema),
       this.reviewsController.getReviewDetailContoller,
@@ -35,6 +41,13 @@ class ReviewsRoute {
       "/:movieId/reviews/:reviewId",
       this.validator("params", reviewIdmovieIdSchema),
       this.reviewsController.deleteReviewContoller,
+    );
+
+    this.router.patch(
+      "/:movieId/reviews/:reviewId",
+      this.validator("params", reviewIdmovieIdSchema),
+      this.validator("body", reviewUpdateSchema),
+      this.reviewsController.updateReviewController,
     );
   }
 
