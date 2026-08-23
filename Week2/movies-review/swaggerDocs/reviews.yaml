@@ -1,0 +1,420 @@
+paths:
+  /movies/{movieId}/reviews:
+    parameters:
+      - $ref: "#/components/parameters/ReviewMovieId"
+
+    get:
+      tags: [Reviews]
+      summary: Get reviews for a movie with optional filters
+
+      parameters:
+        - name: reviewer_name
+          in: query
+          required: false
+          description: Partial match for reviewer name.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+
+        - name: rating
+          in: query
+          required: false
+          description: Rating value to filter by.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+
+        - name: rating_filter
+          in: query
+          required: false
+          description: Compare rating using =, >, <, >=, or <=.
+          schema:
+            type: string
+            enum: ["=", ">", "<", ">=", "<="]
+
+      responses:
+        "200":
+          description: Reviews matching the filters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewListResponse"
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewMovieNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+    post:
+      tags: [Reviews]
+      summary: Create a review for a movie
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+
+      responses:
+        "201":
+          description: Review created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateReviewResponse"
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewMovieNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+  /movies/{movieId}/reviews/averageRating:
+    parameters:
+      - $ref: "#/components/parameters/ReviewMovieId"
+
+    get:
+      tags: [Reviews]
+      summary: Get the average rating for a movie
+
+      responses:
+        "200":
+          description: Average rating result.
+          content:
+            application/json:
+              schema:
+                type: object
+
+                required:
+                  - result
+
+                properties:
+                  result:
+                    type: number
+                    format: float
+                    example: 4.5
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewMovieNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+  /movies/{movieId}/reviews/{reviewId}:
+    parameters:
+      - $ref: "#/components/parameters/ReviewMovieId"
+
+      - $ref: "#/components/parameters/ReviewId"
+
+    get:
+      tags: [Reviews]
+      summary: Get a review by movie ID and review ID
+
+      responses:
+        "200":
+          description: Review detail.
+
+          content:
+            application/json:
+              schema:
+                type: object
+
+                required:
+                  - result
+
+                properties:
+                  result:
+                    $ref: "#/components/schemas/Review"
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+    patch:
+      tags: [Reviews]
+      summary: Update one or more fields of a review
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewRequest"
+
+      responses:
+        "200":
+          description: Review updated.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateReviewResponse"
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+    delete:
+      tags: [Reviews]
+      summary: Delete a review
+
+      responses:
+        "204":
+          description: Review deleted successfully.
+
+        "400":
+          $ref: "#/components/responses/ReviewValidationError"
+
+        "404":
+          $ref: "#/components/responses/ReviewNotFound"
+
+        "500":
+          $ref: "#/components/responses/ReviewInternalError"
+
+components:
+  parameters:
+    ReviewMovieId:
+      name: movieId
+      in: path
+      required: true
+      description: Movie UUID.
+
+      schema:
+        type: string
+        format: uuid
+
+    ReviewId:
+      name: reviewId
+      in: path
+      required: true
+      description: Review UUID.
+
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Review:
+      type: object
+
+      required:
+        - id
+        - movie_id
+        - reviewer_name
+        - rating
+        - comment
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        movie_id:
+          type: string
+          format: uuid
+
+        reviewer_name:
+          type: string
+          maxLength: 100
+          example: Ada Lovelace
+
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+
+        comment:
+          type: string
+          maxLength: 1000
+          example: A thoughtful and exciting film.
+
+    CreateReviewRequest:
+      type: object
+      additionalProperties: false
+
+      required:
+        - reviewer_name
+        - rating
+        - comment
+
+      properties:
+        reviewer_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Ada Lovelace
+
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          example: A thoughtful and exciting film.
+
+    UpdateReviewRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+
+      properties:
+        reviewer_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Ada Lovelace
+
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          example: Updated review comment.
+
+    CreateReviewResponse:
+      type: object
+
+      required:
+        - message
+        - data
+
+      properties:
+        message:
+          type: string
+          example: Review created
+
+        data:
+          $ref: "#/components/schemas/Review"
+
+    UpdateReviewResponse:
+      type: object
+
+      required:
+        - message
+        - data
+
+      properties:
+        message:
+          type: string
+          example: Review updated
+
+        data:
+          $ref: "#/components/schemas/Review"
+
+    ReviewListResponse:
+      type: object
+
+      required:
+        - message
+        - data
+
+      properties:
+        message:
+          type: string
+          enum:
+            - Found
+            - No Reviews
+
+        count:
+          type: integer
+          minimum: 0
+          example: 1
+
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+
+    ReviewErrorResponse:
+      type: object
+
+      required:
+        - message
+
+      properties:
+        message:
+          type: string
+
+    ReviewValidationErrorResponse:
+      type: object
+
+      required:
+        - message
+        - errors
+
+      properties:
+        message:
+          type: string
+          example: Validation failed
+
+        errors:
+          type: array
+          items:
+            type: string
+
+  responses:
+    ReviewValidationError:
+      description: The request did not satisfy input validation.
+
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewValidationErrorResponse"
+
+    ReviewMovieNotFound:
+      description: No movie exists for the provided movie ID.
+
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewErrorResponse"
+
+    ReviewNotFound:
+      description: No review exists for the provided movie ID and review ID.
+
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewErrorResponse"
+
+    ReviewInternalError:
+      description: An unexpected server error occurred.
+
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewErrorResponse"
