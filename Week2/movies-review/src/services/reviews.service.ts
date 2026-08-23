@@ -22,7 +22,7 @@ export class ReviewsService {
     reviewData: CreateReviewInput,
   ) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
 
@@ -43,7 +43,7 @@ export class ReviewsService {
   public static getReviews = async (movieId: string, filters: filterInput) => {
     const movie = await MoviesRepository.findById(movieId);
 
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
 
@@ -80,7 +80,7 @@ export class ReviewsService {
 
   public static getReviewDetail = async (movieId: string, reviewId: string) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
     const reviewDetail = await ReviewsRepository.findReviewById(
@@ -102,7 +102,7 @@ export class ReviewsService {
     reviewData: UpdateReviewInput,
   ) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
 
@@ -137,7 +137,7 @@ export class ReviewsService {
 
   public static deleteReview = async (movieId: string, Id: string) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
     const reviewDetail = await ReviewsRepository.deleteReviewById(movieId, Id);
@@ -151,7 +151,7 @@ export class ReviewsService {
 
   public static findAverageReview = async (movieId: string) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie) {
+    if (!movie?.[0]) {
       throw new HttpError(404, "Movie not found");
     }
     const data = await ReviewsRepository.findAllReviewsRating(movieId);
@@ -160,12 +160,12 @@ export class ReviewsService {
       totalRating: number;
     }
     const calcAverage = ({ count, totalRating }: averageInput) => {
+      if (count == 0) {
+        return { averageRating: null };
+      }
       const result = totalRating / count;
 
-      if (result > 0 && typeof result === "number") {
-        return { averageRating: result };
-      }
-      return { averageRating: 0 };
+      return { averageRating: result };
     };
     return calcAverage(data);
   };

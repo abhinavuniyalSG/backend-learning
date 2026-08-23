@@ -3,7 +3,10 @@ paths:
     get:
       tags: [Movies]
       summary: List or filter movies
-      description: Returns every movie when no filters are supplied. Title and director use partial matching.
+      description: >
+        Returns every movie when no filters are supplied. Title and director
+        use partial matching. Movies can also be filtered by genre and by a
+        minimum computed average rating.
 
       parameters:
         - name: id
@@ -35,7 +38,9 @@ paths:
 
         - name: release_year
           in: query
-          description: Filter by release year. Uses exact matching unless year_filter is supplied.
+          description: >
+            Filter by release year. Uses exact matching unless year_filter
+            is supplied.
           schema:
             type: integer
             minimum: 1888
@@ -46,6 +51,18 @@ paths:
           schema:
             type: string
             enum: ["=", ">", "<", ">=", "<="]
+
+        - name: min_average_rating
+          in: query
+          description: >
+            Return only movies whose computed averageRating is greater than
+            or equal to this value. Movies with no reviews have an
+            averageRating of null and are not included when this filter is used.
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5
+            example: 4
 
       responses:
         "200":
@@ -192,6 +209,7 @@ components:
         - director
         - genre
         - release_year
+        - averageRating
 
       properties:
         id:
@@ -215,6 +233,17 @@ components:
           type: integer
           minimum: 1888
           example: 2010
+
+        averageRating:
+          type: number
+          nullable: true
+          minimum: 1
+          maximum: 5
+          example: 4.5
+          description: >
+            The average rating computed by the server from the movie's reviews.
+            This value cannot be set directly by the client. Returns null when
+            the movie has no reviews.
 
     CreateMovieRequest:
       type: object

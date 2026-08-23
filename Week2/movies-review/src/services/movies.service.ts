@@ -1,6 +1,8 @@
+import type { UUID } from "node:crypto";
 import type { MovieGenre } from "../database/models/movies.model.js";
 import { MoviesRepository } from "../database/repository/movies.repository.js";
 import { HttpError } from "../utils/httpError.utils.js";
+import { ReviewsService } from "./reviews.service.js";
 
 interface CreateMovieInput {
   title: string;
@@ -20,6 +22,24 @@ interface UpdateMovieInput {
   release_year?: number;
 }
 
+interface Review {
+  id: UUID;
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+}
+interface Movie {
+  id: string;
+  title: string;
+  director: string;
+  genre: string;
+  release_year: number;
+  reviews: Array<Review>;
+}
+interface MovieWithAverage extends Movie {
+  averageRating: number | null;
+}
+
 export class MoviesService {
   private static moviesRepostry = MoviesRepository;
   public static createMovieService = async (data: CreateMovieInput) => {
@@ -33,6 +53,7 @@ export class MoviesService {
   public static getMovies = async (filters: GetMoviesFilters) => {
     let result: any;
     const cleanedFilters: any = {};
+    let minAverageRatingFilter = null;
     const validFilter = ["id", "title", "director", "genre", "year_filter"];
     for (const [key, value] of Object.entries(filters)) {
       if (key === "release_year") {
@@ -40,10 +61,13 @@ export class MoviesService {
         if (!("year_filter" in filters)) {
           cleanedFilters["year_filter"] = "=";
         }
+      } else if (key === "min_average_rating") {
+        minAverageRatingFilter = value;
       } else if (validFilter.find((item) => item === key)) {
         cleanedFilters[key] = value;
       }
     }
+
     if (Object.keys(cleanedFilters).length === 0) {
       result = await this.moviesRepostry.getAllMovies();
     } else {
@@ -56,6 +80,24 @@ export class MoviesService {
         message: "No Movies",
       };
     }
+    result = result.map((movie: Movie) => {
+      if (movie.reviews.length > 0) {
+        const average =
+          movie.reviews.reduce(
+            (acc: number, review: Review) => acc + review.rating,
+            0,
+          ) / movie.reviews.length;
+        return { ...movie, averageRating: average };
+      }
+      return { ...movie, averageRating: null };
+    });
+    if (minAverageRatingFilter !== null) {
+      result = result.filter(
+        (movie: MovieWithAverage) =>
+          movie.averageRating !== null &&
+          movie.averageRating >= minAverageRatingFilter,
+      );
+    }
     return {
       message: "Found",
       count: result.length,
@@ -64,12 +106,20 @@ export class MoviesService {
   };
   public static getMovieDetails = async (input: { id: string }) => {
     const movie = await this.moviesRepostry.findById(input.id);
-    if (!movie) {
+    const movieDetails = movie?.[0];
+
+    if (!movieDetails) {
       throw new HttpError(404, "Movie not found");
     }
+    const average =
+      movieDetails.reviews.reduce(
+        (acc: number, review) => acc + review.rating,
+        0,
+      ) / movieDetails.reviews.length || null;
+    const movieWithAverage = { ...movieDetails, averageRating: average };
     return {
       message: "Found",
-      data: movie,
+      data: [movieWithAverage],
     };
   };
 

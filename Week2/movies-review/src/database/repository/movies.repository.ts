@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 import { AppDataSource } from "../dbConnection.js";
 import { Movies } from "../models/movies.model.js";
+import { ReviewsRepository } from "./reviews.repository.js";
 
 export class MoviesRepository {
   public static repository = AppDataSource.getRepository(Movies);
@@ -14,8 +15,13 @@ export class MoviesRepository {
   public static findByTitle = (title: string) =>
     this.repository.findOneBy({ title: title });
 
-  public static getAllMovies = () => this.repository.find();
-  public static getMoviesWithFilters = (filters: any) => {
+  public static getAllMovies = () =>
+    this.repository.find({
+      relations: {
+        reviews: true,
+      },
+    });
+  public static getMoviesWithFilters = async (filters: any) => {
     if ("year_filter" in filters) {
       const year =
         filters.year_filter === "="
@@ -38,9 +44,20 @@ export class MoviesRepository {
     if ("director" in filters) {
       filters.director = Like(`%${filters.director}%`);
     }
-    return this.repository.find({ where: filters });
+    return this.repository.find({
+      where: filters,
+      relations: {
+        reviews: true,
+      },
+    });
   };
-  public static findById = (id: string) => this.repository.findOneBy({ id });
+  public static findById = (id: string) =>
+    this.repository.find({
+      where: { id },
+      relations: {
+        reviews: true,
+      },
+    });
 
   public static deleteById = (id: string) => this.repository.delete({ id });
 
