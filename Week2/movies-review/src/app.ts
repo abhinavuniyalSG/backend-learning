@@ -11,6 +11,7 @@ class App {
   public app: express.Application = express();
   public async initializeMiddlewares(): Promise<void> {
     await this.kernel.dataBaseConnect();
+    this.kernel.requestLimiter(this.app);
     this.kernel.toJsonParser(this.app);
     this.kernel.preFlight(this.app);
     this.kernel.httpLogger(this.app);
