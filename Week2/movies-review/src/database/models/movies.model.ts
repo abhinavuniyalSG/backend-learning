@@ -1,5 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { Reviews } from "./reviews.model.js";
+import { Users } from "./users.model.js";
 
 export enum MovieGenre {
   "Sci-Fi" = "Sci-Fi",
@@ -32,4 +40,8 @@ export class Movies {
 
   @OneToMany(() => Reviews, (review) => review.movie)
   reviews!: Reviews[];
+
+  @ManyToOne(() => Users, (user) => user.movies, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "user_id" })
+  user?: Users;
 }

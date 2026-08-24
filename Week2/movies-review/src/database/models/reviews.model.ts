@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Movies } from "./movies.model.js";
+import { Users } from "./users.model.js";
 
 @Entity({ name: "reviews" })
 export class Reviews {
@@ -24,4 +25,8 @@ export class Reviews {
   @ManyToOne(() => Movies, (movie) => movie.reviews, { onDelete: "CASCADE" })
   @JoinColumn({ name: "movie_id" })
   movie!: Movies;
+
+  @ManyToOne(() => Users, (user) => user.reviews, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "user_id" })
+  user?: Users;
 }
