@@ -1,5 +1,6 @@
 import express from "express";
 import { ReviewsController } from "../controllers/reviews.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 import { requestValidator } from "../middleware/requestValidator.middleware.js";
 import {
   movieIdSchema,
@@ -23,6 +24,7 @@ class ReviewsRoute {
     );
     this.router.post(
       "/:movieId/reviews",
+      authMiddleware,
       this.validator("params", movieIdSchema),
       this.validator("body", reviewCreationSchema),
       this.reviewsController.createReviewController,
@@ -39,12 +41,14 @@ class ReviewsRoute {
     );
     this.router.delete(
       "/:movieId/reviews/:reviewId",
+      authMiddleware,
       this.validator("params", reviewIdmovieIdSchema),
       this.reviewsController.deleteReviewContoller,
     );
 
     this.router.patch(
       "/:movieId/reviews/:reviewId",
+      authMiddleware,
       this.validator("params", reviewIdmovieIdSchema),
       this.validator("body", reviewUpdateSchema),
       this.reviewsController.updateReviewController,

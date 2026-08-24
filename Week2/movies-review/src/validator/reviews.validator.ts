@@ -2,11 +2,6 @@ import z from "zod";
 
 export const reviewCreationSchema = z
   .object({
-    reviewer_name: z
-      .string({ error: "Reviewer name must be a string" })
-      .trim()
-      .min(1, "Reviewer name is required")
-      .max(100, "Reviewer name must not exceed 100 characters"),
     rating: z
       .number({ error: "Rating must be a number" })
       .int("Rating must be an integer")
@@ -31,12 +26,6 @@ export const movieIdSchema = z
 
 export const reviewQuerySchema = z
   .object({
-    reviewer_name: z
-      .string()
-      .trim()
-      .min(1, "Reviewer name cannot be empty")
-      .max(100, "Reviewer name must not exceed 100 characters")
-      .optional(),
     rating: z.coerce
       .number({ error: "Rating must be a number" })
       .int("Rating must be an integer")
@@ -66,12 +55,6 @@ export const reviewIdmovieIdSchema = z
 
 export const reviewUpdateSchema = z
   .object({
-    reviewer_name: z
-      .string({ error: "Reviewer name must be a string" })
-      .trim()
-      .min(1, "Reviewer name is required")
-      .max(100, "Reviewer name must not exceed 100 characters")
-      .optional(),
     rating: z
       .number({ error: "Rating must be a number" })
       .int("Rating must be an integer")

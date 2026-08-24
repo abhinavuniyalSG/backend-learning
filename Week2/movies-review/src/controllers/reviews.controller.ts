@@ -15,11 +15,16 @@ export class ReviewsController {
         movieId: string;
       };
       const body = req.validated?.body as {
-        reviewer_name: string;
         rating: number;
         comment: string;
       };
-      const review = await ReviewsService.createReview(movieId, body);
+      const userId = req.user?.id;
+
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
+      const review = await ReviewsService.createReview(movieId, body, userId);
 
       res.status(201).json({ message: "Review created", data: review });
     } catch (error) {
@@ -74,21 +79,21 @@ export class ReviewsController {
         movieId: string;
         reviewId: string;
       };
-
+      const user = req.user;
+      if (!user?.id) {
+        throw new Error("User not authenticated");
+      }
       const updatedReview = await ReviewsService.updateReview(
         movieId,
         reviewId,
+        user,
         req.validated?.body as {
-          reviewer_name?: string;
           rating?: number;
           comment?: string;
         },
       );
 
-      res.status(200).json({
-        message: "Review updated",
-        data: updatedReview,
-      });
+      res.status(200).json(updatedReview);
     } catch (error) {
       next(error);
     }
@@ -120,7 +125,12 @@ export class ReviewsController {
         movieId: string;
         reviewId: string;
       };
-      const result = await ReviewsService.deleteReview(movieId, reviewId);
+      const user = req.user;
+      if (!user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      await ReviewsService.deleteReview(movieId, reviewId, user);
       res.status(204).send();
     } catch (error) {
       next(error);

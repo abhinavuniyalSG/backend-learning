@@ -13,9 +13,6 @@ export class Reviews {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "varchar" })
-  reviewer_name!: string;
-
   @Column({ type: "smallint" })
   rating!: number;
 

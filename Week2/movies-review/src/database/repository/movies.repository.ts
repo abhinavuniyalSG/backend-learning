@@ -7,18 +7,18 @@ import {
 } from "typeorm";
 import { AppDataSource } from "../dbConnection.js";
 import { Movies } from "../models/movies.model.js";
-import { ReviewsRepository } from "./reviews.repository.js";
 
 export class MoviesRepository {
   public static repository = AppDataSource.getRepository(Movies);
 
-  public static findByTitle = (title: string) =>
-    this.repository.findOneBy({ title: title });
+  public static findByTitle = (title: string, director: string) =>
+    this.repository.findOneBy({ title: title, director: director });
 
   public static getAllMovies = () =>
     this.repository.find({
       relations: {
         reviews: true,
+        user: true,
       },
     });
   public static getMoviesWithFilters = async (filters: any) => {
@@ -48,6 +48,7 @@ export class MoviesRepository {
       where: filters,
       relations: {
         reviews: true,
+        user: true,
       },
     });
   };
@@ -56,6 +57,7 @@ export class MoviesRepository {
       where: { id },
       relations: {
         reviews: true,
+        user: true,
       },
     });
 

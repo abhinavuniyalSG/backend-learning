@@ -3,7 +3,6 @@ import { ReviewsRepository } from "../database/repository/reviews.repository.js"
 import { HttpError } from "../utils/httpError.utils.js";
 
 interface CreateReviewInput {
-  reviewer_name: string;
   rating: number;
   comment: string;
 }
@@ -12,7 +11,6 @@ interface filterInput {
 }
 
 interface UpdateReviewInput {
-  reviewer_name?: string;
   rating?: number;
   comment?: string;
 }
@@ -20,6 +18,7 @@ export class ReviewsService {
   public static createReview = async (
     movieId: string,
     reviewData: CreateReviewInput,
+    userId: string,
   ) => {
     const movie = await MoviesRepository.findById(movieId);
     if (!movie?.[0]) {
@@ -29,12 +28,12 @@ export class ReviewsService {
     const review = await ReviewsRepository.repository.save({
       ...reviewData,
       movie: { id: movieId },
+      user: { id: userId },
     });
 
     return {
       id: review.id,
       movie_id: movieId,
-      reviewer_name: review.reviewer_name,
       rating: review.rating,
       comment: review.comment,
     };
@@ -48,7 +47,7 @@ export class ReviewsService {
     }
 
     const cleanedFilters: filterInput = {};
-    const validKeys = ["reviewer_name", "rating", "rating_filter"];
+    const validKeys = ["rating", "rating_filter"];
 
     for (const [key, value] of Object.entries(filters)) {
       if (validKeys.includes(key)) {
@@ -99,6 +98,7 @@ export class ReviewsService {
   public static updateReview = async (
     movieId: string,
     reviewId: string,
+    user: { [key: string]: any },
     reviewData: UpdateReviewInput,
   ) => {
     const movie = await MoviesRepository.findById(movieId);
@@ -109,6 +109,9 @@ export class ReviewsService {
     const review = await ReviewsRepository.findReviewById(movieId, reviewId);
     if (review.length === 0) {
       throw new HttpError(404, "Review not found");
+    }
+    if (review[0]?.user?.id !== user.id) {
+      throw new HttpError(403, "authenticated but not permitted");
     }
 
     const updates = Object.fromEntries(
@@ -135,10 +138,22 @@ export class ReviewsService {
     };
   };
 
-  public static deleteReview = async (movieId: string, Id: string) => {
+  public static deleteReview = async (
+    movieId: string,
+    Id: string,
+    user: { [key: string]: any },
+  ) => {
     const movie = await MoviesRepository.findById(movieId);
-    if (!movie?.[0]) {
+
+    if (!movie[0]) {
       throw new HttpError(404, "Movie not found");
+    }
+    const review = await ReviewsRepository.findReviewById(movieId, Id);
+    if (!review[0]) {
+      throw new HttpError(404, "Review not found");
+    }
+    if (review[0].user?.id !== user.id && user.role !== "admin") {
+      throw new HttpError(403, "authenticated but not permitted");
     }
     const reviewDetail = await ReviewsRepository.deleteReviewById(movieId, Id);
     if (reviewDetail.affected === 0) {
@@ -155,18 +170,7 @@ export class ReviewsService {
       throw new HttpError(404, "Movie not found");
     }
     const data = await ReviewsRepository.findAllReviewsRating(movieId);
-    interface averageInput {
-      count: number;
-      totalRating: number;
-    }
-    const calcAverage = ({ count, totalRating }: averageInput) => {
-      if (count == 0) {
-        return { averageRating: null };
-      }
-      const result = totalRating / count;
 
-      return { averageRating: result };
-    };
-    return calcAverage(data);
+    return data;
   };
 }

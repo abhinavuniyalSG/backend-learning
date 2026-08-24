@@ -18,6 +18,7 @@ export class ReviewsRepository {
       },
       relations: {
         movie: true,
+        user: true,
       },
     });
 
@@ -28,10 +29,6 @@ export class ReviewsRepository {
     const where: Record<string, any> = {
       movie: { id: movieId },
     };
-
-    if (filters.reviewer_name) {
-      where.reviewer_name = Like(`%${filters.reviewer_name}%`);
-    }
 
     if (filters.rating !== undefined) {
       const ratingFilter = filters.rating_filter ?? "=";
@@ -56,6 +53,7 @@ export class ReviewsRepository {
       where,
       relations: {
         movie: true,
+        user: true,
       },
     });
   };
@@ -63,6 +61,10 @@ export class ReviewsRepository {
   public static findReviewById = async (movieId: string, reviewId: string) =>
     await this.repository.find({
       where: { id: reviewId, movie: { id: movieId } },
+      relations: {
+        movie: true,
+        user: true,
+      },
     });
   public static updateReviewById = async (
     movieId: string,
@@ -85,8 +87,7 @@ export class ReviewsRepository {
   public static findAllReviewsRating = async (movieId: string) =>
     await this.repository
       .createQueryBuilder("reviews")
-      .select("COUNT(reviews.id)", "count")
-      .addSelect("SUM(reviews.rating)", "totalRating")
+      .select("AVG(reviews.rating)", "averageRating")
       .where("reviews.movie = :movieId", { movieId })
       .getRawOne();
 }

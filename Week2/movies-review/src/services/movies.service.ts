@@ -2,7 +2,6 @@ import type { UUID } from "node:crypto";
 import type { MovieGenre } from "../database/models/movies.model.js";
 import { MoviesRepository } from "../database/repository/movies.repository.js";
 import { HttpError } from "../utils/httpError.utils.js";
-import { ReviewsService } from "./reviews.service.js";
 
 interface CreateMovieInput {
   title: string;
@@ -24,7 +23,6 @@ interface UpdateMovieInput {
 
 interface Review {
   id: UUID;
-  reviewer_name: string;
   rating: number;
   comment: string;
 }
@@ -42,12 +40,21 @@ interface MovieWithAverage extends Movie {
 
 export class MoviesService {
   private static moviesRepostry = MoviesRepository;
-  public static createMovieService = async (data: CreateMovieInput) => {
-    const found = await this.moviesRepostry.findByTitle(data.title);
+  public static createMovieService = async (
+    data: CreateMovieInput,
+    userId: string,
+  ) => {
+    const found = await this.moviesRepostry.findByTitle(
+      data.title,
+      data.director,
+    );
     if (found) {
       throw new HttpError(409, "Movie already exist");
     }
-    return this.moviesRepostry.repository.save(data);
+    return this.moviesRepostry.repository.save({
+      ...data,
+      user: { id: userId },
+    });
   };
 
   public static getMovies = async (filters: GetMoviesFilters) => {
@@ -113,7 +120,7 @@ export class MoviesService {
     }
     const average =
       movieDetails.reviews.reduce(
-        (acc: number, review) => acc + review.rating,
+        (acc: number, review: any) => acc + review.rating,
         0,
       ) / movieDetails.reviews.length || null;
     const movieWithAverage = { ...movieDetails, averageRating: average };
@@ -123,7 +130,17 @@ export class MoviesService {
     };
   };
 
-  public static deleteMovieService = async (input: { id: string }) => {
+  public static deleteMovieService = async (input: {
+    id: string;
+    user: { [key: string]: any };
+  }) => {
+    const movie = await this.moviesRepostry.findById(input.id);
+    if (!movie[0]) {
+      throw new HttpError(404, "Movie not found");
+    }
+    if (movie[0]?.user?.id !== input.user.id && input.user.role !== "admin") {
+      throw new HttpError(403, "authenticated but not permitted");
+    }
     const result = await this.moviesRepostry.deleteById(input.id);
 
     if (!result.affected) {
@@ -134,6 +151,7 @@ export class MoviesService {
   public static updateMovieService = async (input: {
     id: string;
     updates: any;
+    user: { [key: string]: any };
   }) => {
     const validFields = ["title", "director", "genre", "release_year"];
     const cleanedUpdates = Object.fromEntries(
@@ -145,7 +163,13 @@ export class MoviesService {
     if (Object.keys(cleanedUpdates).length === 0) {
       throw new HttpError(400, "No valid fields provided for update");
     }
-
+    const movie = await this.moviesRepostry.findById(input.id);
+    if (!movie[0]) {
+      throw new HttpError(404, "Movie not found");
+    }
+    if (movie[0]?.user?.id !== input.user.id) {
+      throw new HttpError(403, "authenticated but not permitted");
+    }
     const result = await this.moviesRepostry.updateById(
       input.id,
       cleanedUpdates,
@@ -154,5 +178,6 @@ export class MoviesService {
     if (!result.affected) {
       throw new HttpError(404, "Movie not found");
     }
+    return { message: "update success", result };
   };
 }

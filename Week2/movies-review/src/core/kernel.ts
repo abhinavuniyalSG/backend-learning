@@ -5,7 +5,7 @@ import { ErrorMiddleware } from "../middleware/errorHandling.middleware.js";
 import { RequestLoggerMiddleware } from "../middleware/requestLogger.middleware.js";
 import { RateLimiterMiddleware } from "../middleware/rateLimiter.middleware.js";
 
-class kernel {
+class Kernel {
   private errorHandlingMiddleware = ErrorMiddleware.middleware;
   private margonHttpLogger = RequestLoggerMiddleware.requestLogger;
   private limiter = RateLimiterMiddleware.limiter;
@@ -29,4 +29,4 @@ class kernel {
   };
 }
 
-export default kernel;
+export default Kernel;

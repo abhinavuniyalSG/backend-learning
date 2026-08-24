@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import type { StringValue } from "ms";
 dotenv.config();
 
 export const PORT = process.env.PORT || 3000;
@@ -14,4 +15,9 @@ export const DB_VARIABLES = {
   DB_PASSWORD: process.env.DB_PASSWORD || "",
   DB_LOGGING: Boolean(process.env.DB_LOGGING) || false,
   DB_DATABASE: process.env.DB_DATABASE || "movies_reviews",
+};
+
+export const JWT_VARIABLES = {
+  JWT_SECRET: process.env.JWT_SECRET || "default_secret_key",
+  JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || "1d") as StringValue,
 };

@@ -13,7 +13,8 @@ export const movieCreationSchema = z
       })
       .trim()
       .min(1, "Title is required")
-      .max(100, "Title must not exceed 100 characters"),
+      .max(100, "Title must not exceed 100 characters")
+      .toLowerCase(),
 
     director: z
       .string({
@@ -24,7 +25,8 @@ export const movieCreationSchema = z
       })
       .trim()
       .min(1, "Director is required")
-      .max(100, "Director must not exceed 100 characters"),
+      .max(100, "Director must not exceed 100 characters")
+      .toLowerCase(),
 
     genre: z.enum(
       ["Sci-Fi", "Action", "Crime", "Drama", "Thriller", "Animation"],
@@ -58,8 +60,18 @@ export const movieUpdateSchema = movieCreationSchema
 export const movieQuerySchema = z
   .object({
     id: idSchema.shape.id.optional(),
-    title: z.string().trim().min(1, "Title cannot be empty").optional(),
-    director: z.string().trim().min(1, "Director cannot be empty").optional(),
+    title: z
+      .string()
+      .trim()
+      .min(1, "Title cannot be empty")
+      .toLowerCase()
+      .optional(),
+    director: z
+      .string()
+      .trim()
+      .min(1, "Director cannot be empty")
+      .toLowerCase()
+      .optional(),
     genre: z
       .enum(["Sci-Fi", "Action", "Crime", "Drama", "Thriller", "Animation"], {
         error: "Invalid genre",
@@ -78,7 +90,6 @@ export const movieQuerySchema = z
       .optional(),
     min_average_rating: z.coerce
       .number({ error: "Average Rating must be a number" })
-      .int("Average rating must be an integer")
       .min(0, "Rating must be at least 0")
       .max(5, "Rating must not exceed 5")
       .optional(),

@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import express from "express";
-import kernel from "./core/kernel.js";
-import routes from "./routes/index.js";
+import Kernel from "./core/kernel.js";
+import Routes from "./routes/index.js";
 import { logger } from "./core/logger.js";
 import { registerSwagger } from "./docs/swagger.js";
 
 class App {
-  private kernel: kernel = new kernel();
-  private routes: routes = new routes();
+  private kernel: Kernel = new Kernel();
+  private routes: Routes = new Routes();
   public app: express.Application = express();
   public async initializeMiddlewares(): Promise<void> {
     await this.kernel.dataBaseConnect();
