@@ -81,6 +81,8 @@ paths:
     post:
       tags: [Movies]
       summary: Create a movie
+      security:
+        - bearerAuth: []
 
       requestBody:
         required: true
@@ -100,6 +102,9 @@ paths:
 
         "400":
           $ref: "#/components/responses/ValidationError"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
         "409":
           $ref: "#/components/responses/DuplicateMovie"
@@ -135,6 +140,8 @@ paths:
     patch:
       tags: [Movies]
       summary: Update one or more movie fields
+      security:
+        - bearerAuth: []
 
       requestBody:
         required: true
@@ -155,6 +162,12 @@ paths:
         "400":
           $ref: "#/components/responses/ValidationError"
 
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
         "404":
           $ref: "#/components/responses/MovieNotFound"
 
@@ -164,6 +177,8 @@ paths:
     delete:
       tags: [Movies]
       summary: Delete a movie
+      security:
+        - bearerAuth: []
 
       responses:
         "204":
@@ -171,6 +186,12 @@ paths:
 
         "400":
           $ref: "#/components/responses/ValidationError"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+        "403":
+          $ref: "#/components/responses/Forbidden"
 
         "404":
           $ref: "#/components/responses/MovieNotFound"
@@ -340,7 +361,9 @@ components:
             - Found
 
         data:
-          $ref: "#/components/schemas/Movie"
+          type: array
+          items:
+            $ref: "#/components/schemas/Movie"
 
     ErrorResponse:
       type: object
@@ -377,6 +400,24 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ValidationErrorResponse"
+
+    Unauthorized:
+      description: Missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Unauthorized
+
+    Forbidden:
+      description: Authenticated user is not allowed to perform this action.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: "Forbidden: you are not allowed to update this movie"
 
     DuplicateMovie:
       description: A movie with the same title already exists.

@@ -44,8 +44,8 @@ export class AuthenticationService {
       JWT_VARIABLES.JWT_REFRESH_SECRET,
       { expiresIn: JWT_VARIABLES.JWT_REFRESH_EXPIRES_IN },
     );
-
-    await UsersRepository.updateRefreshToken(user.id, refreshToken);
+    const safeRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await UsersRepository.updateRefreshToken(user.id, safeRefreshToken);
 
     return {
       message: "User registered successfully",
@@ -84,8 +84,8 @@ export class AuthenticationService {
       JWT_VARIABLES.JWT_REFRESH_SECRET,
       { expiresIn: JWT_VARIABLES.JWT_REFRESH_EXPIRES_IN },
     );
-
-    await UsersRepository.updateRefreshToken(user.id, refreshToken);
+    const safeRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await UsersRepository.updateRefreshToken(user.id, safeRefreshToken);
 
     return {
       message: "Login successful",
@@ -113,7 +113,11 @@ export class AuthenticationService {
     }
 
     const user = await UsersRepository.findByIdWithRefreshToken(decoded.id);
-    if (!user || user.refreshToken !== token) {
+    const isVlaidRefreshtoken = await bcrypt.compare(
+      token,
+      user?.refreshToken ?? "",
+    );
+    if (!user || !isVlaidRefreshtoken) {
       throw new HttpError(401, "Invalid refresh token");
     }
 

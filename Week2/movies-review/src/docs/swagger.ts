@@ -13,9 +13,19 @@ const swaggerSpec = swaggerJSDoc({
     },
     servers: [{ url: "/api", description: "Current server" }],
     tags: [
+      { name: "Authentication", description: "User authentication operations" },
       { name: "Movies", description: "Movie catalogue operations" },
       { name: "Reviews", description: "Movie review operations" },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: [resolve(process.cwd(), "swaggerDocs/**/*.yaml")],
 });

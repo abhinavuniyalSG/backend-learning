@@ -1,0 +1,325 @@
+paths:
+  /register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Creates a user account, hashes the password, and issues an access token plus refresh token.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+
+      responses:
+        "201":
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+
+        "400":
+          $ref: "#/components/responses/AuthValidationError"
+
+        "409":
+          $ref: "#/components/responses/UserConflict"
+
+        "500":
+          $ref: "#/components/responses/AuthInternalError"
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: Log in an existing user
+      description: Validates the email and password and returns a fresh access token and refresh token.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+
+      responses:
+        "200":
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+
+        "400":
+          $ref: "#/components/responses/AuthValidationError"
+
+        "401":
+          $ref: "#/components/responses/InvalidCredentials"
+
+        "500":
+          $ref: "#/components/responses/AuthInternalError"
+
+  /refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh the access token
+      description: Accepts a valid refresh token and rotates it to a new refresh token while issuing a new access token.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+
+      responses:
+        "200":
+          description: Tokens refreshed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResponse"
+
+        "400":
+          $ref: "#/components/responses/AuthValidationError"
+
+        "401":
+          $ref: "#/components/responses/InvalidRefreshToken"
+
+        "500":
+          $ref: "#/components/responses/AuthInternalError"
+
+  /logout:
+    post:
+      tags: [Authentication]
+      summary: Log out the current user
+      description: Invalidates the stored refresh token for the authenticated user.
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Logout successful.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+        "500":
+          $ref: "#/components/responses/AuthInternalError"
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - mail
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Jane Doe
+        mail:
+          type: string
+          format: email
+          example: jane@example.com
+        password:
+          type: string
+          minLength: 8
+          maxLength: 255
+          example: strongpass123
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - mail
+        - password
+      properties:
+        mail:
+          type: string
+          format: email
+          example: jane@example.com
+        password:
+          type: string
+          example: strongpass123
+
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    AuthUser:
+      type: object
+      required:
+        - id
+        - name
+        - mail
+        - role
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 6f2c9b87-f6d6-4da5-a4b1-5f7d10f1d99c
+        name:
+          type: string
+          example: Jane Doe
+        mail:
+          type: string
+          format: email
+          example: jane@example.com
+        role:
+          type: string
+          enum: [user, admin]
+          example: user
+
+    RegisterResponse:
+      type: object
+      required:
+        - message
+        - accessToken
+        - refreshToken
+        - user
+      properties:
+        message:
+          type: string
+          example: User registered successfully
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: "#/components/schemas/AuthUser"
+
+    LoginResponse:
+      type: object
+      required:
+        - message
+        - accessToken
+        - refreshToken
+        - user
+      properties:
+        message:
+          type: string
+          example: Login successful
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: "#/components/schemas/AuthUser"
+
+    RefreshResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    LogoutResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Logout successful
+
+    AuthValidationErrorResponse:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: array
+          items:
+            type: string
+          example: ["Email is required"]
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+
+  responses:
+    AuthValidationError:
+      description: Request body failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AuthValidationErrorResponse"
+
+    Unauthorized:
+      description: User is not authenticated or the bearer token is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Unauthorized
+
+    InvalidCredentials:
+      description: Email or password is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Invalid email or password
+
+    InvalidRefreshToken:
+      description: The refresh token is expired, invalid, or does not match the stored token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Invalid refresh token
+
+    UserConflict:
+      description: A user with the same email already exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: User already exists
+
+    AuthInternalError:
+      description: An unexpected server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Internal server error

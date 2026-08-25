@@ -54,6 +54,8 @@ paths:
     post:
       tags: [Reviews]
       summary: Create a review for a movie
+      security:
+        - bearerAuth: []
 
       requestBody:
         required: true
@@ -72,6 +74,9 @@ paths:
 
         "400":
           $ref: "#/components/responses/ReviewValidationError"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
         "404":
           $ref: "#/components/responses/ReviewMovieNotFound"
@@ -100,9 +105,15 @@ paths:
 
                 properties:
                   result:
-                    type: number
-                    format: float
-                    example: 4.5
+                    type: object
+                    required:
+                      - averageRating
+                    properties:
+                      averageRating:
+                        type: number
+                        nullable: true
+                        format: float
+                        example: 4.5
 
         "400":
           $ref: "#/components/responses/ReviewValidationError"
@@ -137,7 +148,16 @@ paths:
 
                 properties:
                   result:
-                    $ref: "#/components/schemas/Review"
+                    type: object
+                    required:
+                      - message
+                      - data
+                    properties:
+                      message:
+                        type: string
+                        example: found
+                      data:
+                        $ref: "#/components/schemas/Review"
 
         "400":
           $ref: "#/components/responses/ReviewValidationError"
@@ -151,6 +171,8 @@ paths:
     patch:
       tags: [Reviews]
       summary: Update one or more fields of a review
+      security:
+        - bearerAuth: []
 
       requestBody:
         required: true
@@ -172,6 +194,12 @@ paths:
         "400":
           $ref: "#/components/responses/ReviewValidationError"
 
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
         "404":
           $ref: "#/components/responses/ReviewNotFound"
 
@@ -181,6 +209,8 @@ paths:
     delete:
       tags: [Reviews]
       summary: Delete a review
+      security:
+        - bearerAuth: []
 
       responses:
         "204":
@@ -188,6 +218,12 @@ paths:
 
         "400":
           $ref: "#/components/responses/ReviewValidationError"
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+        "403":
+          $ref: "#/components/responses/Forbidden"
 
         "404":
           $ref: "#/components/responses/ReviewNotFound"
@@ -333,7 +369,21 @@ components:
           example: Review updated
 
         data:
-          $ref: "#/components/schemas/Review"
+          type: object
+          required:
+            - message
+            - id
+            - movie_id
+          properties:
+            message:
+              type: string
+              example: Updated review
+            id:
+              type: string
+              format: uuid
+            movie_id:
+              type: string
+              format: uuid
 
     ReviewListResponse:
       type: object
@@ -387,6 +437,24 @@ components:
             type: string
 
   responses:
+    Unauthorized:
+      description: Missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewErrorResponse"
+          example:
+            message: Unauthorized
+
+    Forbidden:
+      description: Authenticated user is not allowed to perform this action.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewErrorResponse"
+          example:
+            message: "Forbidden: you are not allowed to update this review"
+
     ReviewValidationError:
       description: The request did not satisfy input validation.
 
