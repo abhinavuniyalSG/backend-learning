@@ -64,3 +64,16 @@ export const loginSchema = z
       .max(255, "Password must not exceed 255 characters"),
   })
   .strict();
+
+export const refreshTokenSchema = z
+  .object({
+    refreshToken: z
+      .string({
+        error: (issue) =>
+          issue.input === undefined
+            ? "Refresh token is required"
+            : "Refresh token must be a string",
+      })
+      .min(1, "Refresh token is required"),
+  })
+  .strict();

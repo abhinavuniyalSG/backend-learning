@@ -15,4 +15,15 @@ export class UsersRepository {
     this.repository.save(user);
 
   public static findById = (id: string) => this.repository.findOneBy({ id });
+
+  public static updateRefreshToken = async (userId: string, token: string | null) => {
+    await this.repository.update(userId, { refreshToken: token });
+  };
+
+  public static findByIdWithRefreshToken = (id: string) =>
+    this.repository
+      .createQueryBuilder("user")
+      .addSelect("user.refreshToken")
+      .where("user.id = :id", { id })
+      .getOne();
 }

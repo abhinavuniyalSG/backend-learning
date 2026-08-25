@@ -19,6 +19,9 @@ export class Users {
   @Column({ type: "varchar", select: false })
   password!: string;
 
+  @Column({ type: "varchar", nullable: true, select: false })
+  refreshToken!: string | null;
+
   @OneToMany(() => Movies, (movie) => movie.user)
   movies!: Movies[];
 
