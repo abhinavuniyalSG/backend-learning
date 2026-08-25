@@ -1,5 +1,5 @@
 paths:
-  /register:
+  /auth/register:
     post:
       tags: [Authentication]
       summary: Register a new user
@@ -29,7 +29,7 @@ paths:
         "500":
           $ref: "#/components/responses/AuthInternalError"
 
-  /login:
+  /auth/login:
     post:
       tags: [Authentication]
       summary: Log in an existing user
@@ -59,7 +59,7 @@ paths:
         "500":
           $ref: "#/components/responses/AuthInternalError"
 
-  /refresh:
+  /auth/refresh:
     post:
       tags: [Authentication]
       summary: Refresh the access token
@@ -89,7 +89,7 @@ paths:
         "500":
           $ref: "#/components/responses/AuthInternalError"
 
-  /logout:
+  /auth/logout:
     post:
       tags: [Authentication]
       summary: Log out the current user

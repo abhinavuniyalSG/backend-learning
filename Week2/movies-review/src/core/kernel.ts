@@ -8,7 +8,7 @@ import { RateLimiterMiddleware } from "../middleware/rateLimiter.middleware.js";
 class Kernel {
   private errorHandlingMiddleware = ErrorMiddleware.middleware;
   private margonHttpLogger = RequestLoggerMiddleware.requestLogger;
-  private limiter = RateLimiterMiddleware.limiter;
+  private limiter = RateLimiterMiddleware.globalLimiter;
   public toJsonParser = (app: express.Application) => {
     app.use(express.json());
   };
