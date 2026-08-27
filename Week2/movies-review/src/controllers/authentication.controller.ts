@@ -8,7 +8,10 @@ export class AuthenticationController {
     next: NextFunction,
   ) => {
     try {
-      const result = await AuthenticationService.register(req.body);
+      const data = req.validated?.body ?? req.body;
+
+      const result = await AuthenticationService.register(data);
+
       return res.status(201).json(result);
     } catch (error) {
       next(error);
@@ -21,7 +24,8 @@ export class AuthenticationController {
     next: NextFunction,
   ) => {
     try {
-      const result = await AuthenticationService.login(req.body);
+      const data = req.validated?.body ?? req.body;
+      const result = await AuthenticationService.login(data);
       return res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -34,7 +38,8 @@ export class AuthenticationController {
     next: NextFunction,
   ) => {
     try {
-      const result = await AuthenticationService.refresh(req.body.refreshToken);
+      const data = req.validated?.body ?? req.body;
+      const result = await AuthenticationService.refresh(data.refreshToken);
       return res.status(200).json(result);
     } catch (error) {
       next(error);

@@ -59,10 +59,10 @@ paths:
             or equal to this value. Movies with no reviews have an
             averageRating of null and are not included when this filter is used.
           schema:
-            type: integer
+            type: number
             minimum: 0
             maximum: 5
-            example: 4
+            example: 4.5
 
       responses:
         "200":
@@ -70,7 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MovieListResponse"
+                $ref: "#/components/schemas/MovieResponse"
 
         "400":
           $ref: "#/components/responses/ValidationError"
@@ -97,8 +97,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                example: movie created
+                $ref: "#/components/schemas/CreateMovieResponse"
 
         "400":
           $ref: "#/components/responses/ValidationError"
@@ -156,8 +155,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                example: movie updated
+                $ref: "#/components/schemas/UpdateMovieResponse"
 
         "400":
           $ref: "#/components/responses/ValidationError"
@@ -222,8 +220,14 @@ components:
         - Animation
       example: Sci-Fi
 
+    # ============================================================
+    # EXISTING MOVIE SCHEMA
+    # DO NOT CHANGE THIS
+    # ============================================================
+
     Movie:
       type: object
+
       required:
         - id
         - title
@@ -266,6 +270,156 @@ components:
             This value cannot be set directly by the client. Returns null when
             the movie has no reviews.
 
+    # ============================================================
+    # NEW SCHEMA FOR /movies GET RESPONSE
+    # ============================================================
+
+    MovieListItem:
+      type: object
+
+      required:
+        - id
+        - title
+        - director
+        - genre
+        - release_year
+        - reviews
+        - user
+        - averageRating
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        title:
+          type: string
+          maxLength: 100
+          example: the matrix
+
+        director:
+          type: string
+          maxLength: 100
+          example: the wachowskis
+
+        genre:
+          $ref: "#/components/schemas/MovieGenre"
+
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 1999
+
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovieListReview"
+
+        user:
+          $ref: "#/components/schemas/MovieListUser"
+
+        averageRating:
+          type: number
+          nullable: true
+          minimum: 1
+          maximum: 5
+          example: 3
+          description: >
+            The average rating computed by the server from the movie's reviews.
+            Returns null when the movie has no reviews.
+
+    MovieListReview:
+      type: object
+
+      required:
+        - id
+        - rating
+        - comment
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+
+        comment:
+          type: string
+          example: Good movie.
+
+    MovieListUser:
+      type: object
+
+      required:
+        - id
+        - name
+        - mail
+        - role
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        name:
+          type: string
+          example: Jane Doe
+
+        mail:
+          type: string
+          format: email
+          example: jane@example.com
+
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          example: user
+
+    # ============================================================
+    # MOVIE CREATE DATA
+    # ============================================================
+
+    MovieCreateData:
+      type: object
+
+      required:
+        - id
+        - title
+        - director
+        - genre
+        - release_year
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        title:
+          type: string
+          example: Inception
+
+        director:
+          type: string
+          example: Christopher Nolan
+
+        genre:
+          $ref: "#/components/schemas/MovieGenre"
+
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 2010
+
+    # ============================================================
+    # CREATE MOVIE REQUEST
+    # ============================================================
+
     CreateMovieRequest:
       type: object
       additionalProperties: false
@@ -297,6 +451,10 @@ components:
           minimum: 1888
           example: 2010
 
+    # ============================================================
+    # UPDATE MOVIE REQUEST
+    # ============================================================
+
     UpdateMovieRequest:
       type: object
       additionalProperties: false
@@ -323,11 +481,55 @@ components:
           minimum: 1888
           example: 2010
 
-    MovieListResponse:
+    # ============================================================
+    # CREATE MOVIE RESPONSE
+    # ============================================================
+
+    CreateMovieResponse:
       type: object
 
       required:
         - message
+        - data
+
+      properties:
+        message:
+          type: string
+          example: Movie created
+
+        data:
+          $ref: "#/components/schemas/MovieCreateData"
+
+    # ============================================================
+    # UPDATE MOVIE RESPONSE
+    # ============================================================
+
+    UpdateMovieResponse:
+      type: object
+
+      required:
+        - message
+        - result
+
+      properties:
+        message:
+          type: string
+          example: update success
+
+        result:
+          type: object
+          description: Raw update result returned by TypeORM
+
+    # ============================================================
+    # MOVIE LIST RESPONSE
+    # ============================================================
+
+    MovieResponse:
+      type: object
+
+      required:
+        - message
+        - count
         - data
 
       properties:
@@ -340,12 +542,16 @@ components:
         count:
           type: integer
           minimum: 0
-          example: 1
+          example: 4
 
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Movie"
+            $ref: "#/components/schemas/MovieListItem"
+
+    # ============================================================
+    # MOVIE DETAILS RESPONSE
+    # ============================================================
 
     MovieDetailsResponse:
       type: object
@@ -363,7 +569,11 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Movie"
+            $ref: "#/components/schemas/MovieListItem"
+
+    # ============================================================
+    # ERROR RESPONSE
+    # ============================================================
 
     ErrorResponse:
       type: object
@@ -374,6 +584,10 @@ components:
       properties:
         message:
           type: string
+
+    # ============================================================
+    # VALIDATION ERROR RESPONSE
+    # ============================================================
 
     ValidationErrorResponse:
       type: object
@@ -392,10 +606,13 @@ components:
           items:
             type: string
 
+  # ==============================================================
+  # COMMON RESPONSES
+  # ==============================================================
+
   responses:
     ValidationError:
       description: The request did not satisfy input validation.
-
       content:
         application/json:
           schema:
@@ -407,6 +624,7 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+
           example:
             message: Unauthorized
 
@@ -416,12 +634,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+
           example:
             message: "Forbidden: you are not allowed to update this movie"
 
     DuplicateMovie:
       description: A movie with the same title already exists.
-
       content:
         application/json:
           schema:
@@ -432,7 +650,6 @@ components:
 
     MovieNotFound:
       description: No movie exists for the provided ID.
-
       content:
         application/json:
           schema:
@@ -443,7 +660,6 @@ components:
 
     InternalError:
       description: An unexpected server error occurred.
-
       content:
         application/json:
           schema:

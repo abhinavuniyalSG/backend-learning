@@ -20,6 +20,8 @@ export class requestValidator {
           break;
       }
       const result = schema.safeParse(input);
+      console.log(result);
+
       if (!result.success) {
         return res.status(400).json({
           message: "Validation failed",

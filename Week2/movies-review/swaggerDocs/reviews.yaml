@@ -8,15 +8,6 @@ paths:
       summary: Get reviews for a movie with optional filters
 
       parameters:
-        - name: reviewer_name
-          in: query
-          required: false
-          description: Partial match for reviewer name.
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 100
-
         - name: rating
           in: query
           required: false
@@ -99,10 +90,8 @@ paths:
             application/json:
               schema:
                 type: object
-
                 required:
                   - result
-
                 properties:
                   result:
                     type: object
@@ -148,16 +137,7 @@ paths:
 
                 properties:
                   result:
-                    type: object
-                    required:
-                      - message
-                      - data
-                    properties:
-                      message:
-                        type: string
-                        example: found
-                      data:
-                        $ref: "#/components/schemas/Review"
+                    $ref: "#/components/schemas/ReviewDetailsResponse"
 
         "400":
           $ref: "#/components/responses/ReviewValidationError"
@@ -238,7 +218,6 @@ components:
       in: path
       required: true
       description: Movie UUID.
-
       schema:
         type: string
         format: uuid
@@ -248,19 +227,22 @@ components:
       in: path
       required: true
       description: Review UUID.
-
       schema:
         type: string
         format: uuid
 
   schemas:
+    # ============================================================
+    # EXISTING REVIEW SCHEMA
+    # DO NOT CHANGE THIS
+    # ============================================================
+
     Review:
       type: object
 
       required:
         - id
         - movie_id
-        - reviewer_name
         - rating
         - comment
 
@@ -273,10 +255,178 @@ components:
           type: string
           format: uuid
 
-        reviewer_name:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+
+        comment:
+          type: string
+          maxLength: 1000
+          example: A thoughtful and exciting film.
+
+    # ============================================================
+    # REVIEW ARRAY ITEM RESPONSE
+    # Used by GET /movies/{movieId}/reviews
+    # ============================================================
+
+    ReviewResponseArray:
+      type: object
+
+      required:
+        - id
+        - rating
+        - comment
+        - movie
+        - user
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+
+        comment:
+          type: string
+          maxLength: 1000
+          example: Good movie.
+
+        movie:
+          $ref: "#/components/schemas/ReviewResponseMovie"
+
+        user:
+          $ref: "#/components/schemas/ReviewResponseUser"
+
+    # ============================================================
+    # MOVIE INSIDE REVIEW RESPONSE
+    # ============================================================
+
+    ReviewResponseMovie:
+      type: object
+
+      required:
+        - id
+        - title
+        - director
+        - genre
+        - release_year
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        title:
           type: string
           maxLength: 100
-          example: Ada Lovelace
+          example: the matrix
+
+        director:
+          type: string
+          maxLength: 100
+          example: the wachowskis
+
+        genre:
+          $ref: "#/components/schemas/ReviewMovieGenre"
+
+        release_year:
+          type: integer
+          minimum: 1888
+          example: 1999
+
+    # ============================================================
+    # GENRE USED BY REVIEW MOVIE RESPONSE
+    # ============================================================
+
+    ReviewMovieGenre:
+      type: string
+      enum:
+        - Sci-Fi
+        - Action
+        - Crime
+        - Drama
+        - Thriller
+        - Animation
+      example: Sci-Fi
+
+    # ============================================================
+    # USER INSIDE REVIEW RESPONSE
+    # ============================================================
+
+    ReviewResponseUser:
+      type: object
+
+      required:
+        - id
+        - name
+        - mail
+        - role
+
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        name:
+          type: string
+          example: Jane Doe
+
+        mail:
+          type: string
+          format: email
+          example: jane@example.com
+
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          example: user
+
+    # ============================================================
+    # SINGLE REVIEW DETAIL RESPONSE
+    # Used by GET /movies/{movieId}/reviews/{reviewId}
+    # ============================================================
+
+    ReviewDetailsResponse:
+      type: object
+
+      required:
+        - message
+        - data
+
+      properties:
+        message:
+          type: string
+          example: found
+
+        data:
+          $ref: "#/components/schemas/ReviewDetailsResponseData"
+
+    # ============================================================
+    # SINGLE REVIEW DATA
+    # ============================================================
+
+    ReviewDetailsResponseData:
+      type: object
+
+      required:
+        - id
+        - rating
+        - comment
+        - movie
+        - user
+
+      properties:
+        id:
+          type: string
+          format: uuid
 
         rating:
           type: integer
@@ -288,23 +438,26 @@ components:
           type: string
           maxLength: 1000
           example: A thoughtful and exciting film.
+
+        movie:
+          $ref: "#/components/schemas/ReviewResponseMovie"
+
+        user:
+          $ref: "#/components/schemas/ReviewResponseUser"
+
+    # ============================================================
+    # CREATE REVIEW REQUEST
+    # ============================================================
 
     CreateReviewRequest:
       type: object
       additionalProperties: false
 
       required:
-        - reviewer_name
         - rating
         - comment
 
       properties:
-        reviewer_name:
-          type: string
-          minLength: 1
-          maxLength: 100
-          example: Ada Lovelace
-
         rating:
           type: integer
           minimum: 1
@@ -316,6 +469,10 @@ components:
           minLength: 1
           maxLength: 1000
           example: A thoughtful and exciting film.
+
+    # ============================================================
+    # UPDATE REVIEW REQUEST
+    # ============================================================
 
     UpdateReviewRequest:
       type: object
@@ -323,12 +480,6 @@ components:
       minProperties: 1
 
       properties:
-        reviewer_name:
-          type: string
-          minLength: 1
-          maxLength: 100
-          example: Ada Lovelace
-
         rating:
           type: integer
           minimum: 1
@@ -340,6 +491,10 @@ components:
           minLength: 1
           maxLength: 1000
           example: Updated review comment.
+
+    # ============================================================
+    # CREATE REVIEW RESPONSE
+    # ============================================================
 
     CreateReviewResponse:
       type: object
@@ -356,40 +511,41 @@ components:
         data:
           $ref: "#/components/schemas/Review"
 
+    # ============================================================
+    # UPDATE REVIEW RESPONSE
+    # ============================================================
+
     UpdateReviewResponse:
       type: object
 
       required:
         - message
-        - data
+        - id
+        - movie_id
 
       properties:
         message:
           type: string
-          example: Review updated
+          example: Updated review
 
-        data:
-          type: object
-          required:
-            - message
-            - id
-            - movie_id
-          properties:
-            message:
-              type: string
-              example: Updated review
-            id:
-              type: string
-              format: uuid
-            movie_id:
-              type: string
-              format: uuid
+        id:
+          type: string
+          format: uuid
+
+        movie_id:
+          type: string
+          format: uuid
+
+    # ============================================================
+    # GET ALL REVIEWS RESPONSE
+    # ============================================================
 
     ReviewListResponse:
       type: object
 
       required:
         - message
+        - count
         - data
 
       properties:
@@ -402,12 +558,16 @@ components:
         count:
           type: integer
           minimum: 0
-          example: 1
+          example: 2
 
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Review"
+            $ref: "#/components/schemas/ReviewResponseArray"
+
+    # ============================================================
+    # ERROR RESPONSE
+    # ============================================================
 
     ReviewErrorResponse:
       type: object
@@ -418,6 +578,10 @@ components:
       properties:
         message:
           type: string
+
+    # ============================================================
+    # VALIDATION ERROR RESPONSE
+    # ============================================================
 
     ReviewValidationErrorResponse:
       type: object
@@ -439,19 +603,23 @@ components:
   responses:
     Unauthorized:
       description: Missing or invalid bearer token.
+
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ReviewErrorResponse"
+
           example:
             message: Unauthorized
 
     Forbidden:
       description: Authenticated user is not allowed to perform this action.
+
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ReviewErrorResponse"
+
           example:
             message: "Forbidden: you are not allowed to update this review"
 
